@@ -1,0 +1,92 @@
+@reference "tailwindcss";
+
+.hero {
+  @apply relative pt-40 pb-20 px-6 overflow-hidden;
+}
+
+/* Efeito de luz de fundo (Glow) para parecer premium */
+.hero::before {
+  content: "";
+  @apply absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] 
+           bg-emerald-500/10 blur-[120px] rounded-full -z-10;
+}
+
+.hero__container {
+  @apply max-w-5xl mx-auto text-center;
+}
+
+.hero__badge {
+  @apply inline-block px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 
+           text-emerald-400 text-xs font-bold uppercase tracking-widest mb-8;
+}
+
+.hero__title {
+  @apply text-5xl md:text-7xl font-extrabold text-white mb-8 tracking-tighter leading-[1.1];
+}
+
+.hero__description {
+  @apply text-lg md:text-xl text-slate-400 mb-12 max-w-2xl mx-auto leading-relaxed;
+}
+
+.hero__actions {
+  @apply flex flex-col sm:flex-row items-center justify-center gap-4;
+}
+
+/* Hero.css */
+
+.header__button--primary {
+  position: relative;
+  background: var(--color-emerald-500, #10b981);
+  color: #000;
+  font-weight: 700;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px -5px rgba(16, 185, 129, 0.4);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.header__button--primary:hover {
+  background: var(--color-emerald-400, #34d399);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px -5px rgba(16, 185, 129, 0.6);
+}
+
+.header__button--primary:active {
+  transform: translateY(0);
+}
+
+/* Efeito de brilho passando pelo botão */
+.header__button--primary::after {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transform: rotate(45deg);
+  transition: 0.5s;
+  opacity: 0;
+}
+
+.header__button--primary:hover::after {
+  left: 120%;
+  opacity: 1;
+  transition: 0.7s;
+}
+
+/* Animação do ícone ArrowRight */
+.header__button--primary svg {
+  transition: transform 0.3s ease;
+}
+
+.header__button--primary:hover svg {
+  transform: translateX(4px);
+}

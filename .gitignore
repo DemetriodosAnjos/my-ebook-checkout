@@ -1,0 +1,38 @@
+# Dependências
+node_modules/
+
+# Next.js build
+.next/
+out/
+
+# Variáveis de Ambiente (Padrão Ouro de Segurança)
+.env
+.env*.local
+.env.development
+.env.production
+.env.test
+.env.sample      # Opcional: só NÃO ignore se quiser usar como modelo (ex: .env.example)
+
+# Produção e Deploy
+.vercel
+project.tar.gz
+
+# Arquivos de Chaves e Senhas (Manter bem longe do Git)
+*.json           # CUIDADO: Isso ignora TODOS os JSONs. 
+# Se você tiver arquivos de tradução ou o package.json (que DEVE ir ao git), use:
+service-account.json
+sa-temp.json
+key-json/
+
+# Páginas de teste
+pages/modal-test.js
+pages/test-success.js
+pages/test-failures.js
+
+# Logs e Misc
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+desktop.ini
