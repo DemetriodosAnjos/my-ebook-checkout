@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Sparkles } from "lucide-react";
+import { Check, Sparkles, TestTube } from "lucide-react"; // Importei TestTube para o ícone de teste
 import CheckoutModal from "../checkout/CheckoutModal";
 import "./Pricing.css";
 
@@ -13,6 +13,23 @@ const Pricing = () => {
   } | null>(null);
 
   const plans = [
+    {
+      id: "teste", // ID que deve bater com o backend
+      name: "Plano de Teste",
+      price: "R$ 0,55",
+      period: "/único",
+      description:
+        "Valide o fluxo de pagamento real com o menor valor possível.",
+      features: [
+        "Checkout Real (Pix)",
+        "Teste de Webhooks",
+        "Teste de E-mail",
+        "Redirecionamento Automático",
+      ],
+      button: "Testar Agora",
+      highlight: false,
+      isTest: true, // Flag opcional para estilização
+    },
     {
       id: "anual",
       name: "Acesso Anual",
@@ -66,11 +83,18 @@ const Pricing = () => {
               key={plan.id}
               className={`pricing__card ${
                 plan.highlight ? "pricing__card--highlight" : ""
-              }`}
+              } ${plan.isTest ? "pricing__card--test" : ""}`}
             >
               {plan.highlight && (
                 <div className="pricing__badge">
                   <Sparkles size={14} /> MAIS POPULAR
+                </div>
+              )}
+
+              {/* Badge visual para o plano de teste */}
+              {plan.isTest && (
+                <div className="pricing__badge bg-amber-500/20 text-amber-400 border-amber-500/30">
+                  <TestTube size={14} /> AMBIENTE REAL
                 </div>
               )}
 
@@ -89,7 +113,13 @@ const Pricing = () => {
               <ul className="pricing__features">
                 {plan.features.map((feat, idx) => (
                   <li key={idx} className="pricing__feature">
-                    <Check size={18} className="text-emerald-500" /> {feat}
+                    <Check
+                      size={18}
+                      className={
+                        plan.isTest ? "text-amber-500" : "text-emerald-500"
+                      }
+                    />{" "}
+                    {feat}
                   </li>
                 ))}
               </ul>
@@ -105,6 +135,8 @@ const Pricing = () => {
                 className={`pricing__button ${
                   plan.highlight
                     ? "pricing__button--primary"
+                    : plan.isTest
+                    ? "bg-amber-600 hover:bg-amber-700 text-white"
                     : "pricing__button--outline"
                 }`}
               >
@@ -115,7 +147,6 @@ const Pricing = () => {
         </div>
       </div>
 
-      {/* Modal renderizado fora do grid para evitar conflitos de layout */}
       {selectedPlan && (
         <CheckoutModal
           isOpen={true}
