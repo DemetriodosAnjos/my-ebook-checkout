@@ -2,12 +2,13 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Clock, Loader2, RefreshCw, ArrowLeft } from "lucide-react";
+import { Clock, RefreshCw } from "lucide-react";
 import { supabasePublic } from "@/lib/supabaseClient";
 import Link from "next/link";
 import "../pending/pending.css";
 
-function PendingContent() {
+// 1. Componente que contém a lógica e usa useSearchParams
+function PendingPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isChecking, setIsChecking] = useState(false);
@@ -34,7 +35,7 @@ function PendingContent() {
     return () => clearInterval(interval);
   }, [externalReference, router]);
 
-  // ✅ Verificação Manual ao clicar no botão
+  // ✅ Verificação Manual
   const handleManualCheck = async () => {
     if (!externalReference) return;
 
@@ -49,7 +50,6 @@ function PendingContent() {
       if (data?.status === "approved") {
         router.push(`/success?external_reference=${externalReference}`);
       } else {
-        // Delay visual para o usuário sentir que a verificação ocorreu
         setTimeout(() => {
           setIsChecking(false);
           setStatus(data?.status || "pending");
@@ -70,7 +70,6 @@ function PendingContent() {
 
         <h1 className="pending-title">Pagamento em Processamento</h1>
 
-        {/* Badge de status opcional - seguindo o modelo limpo de success */}
         <p className="pending-text">
           O Mercado Pago está confirmando sua transação. Geralmente leva alguns
           segundos. Não se preocupe, você também receberá os detalhes por
@@ -99,4 +98,19 @@ function PendingContent() {
   );
 }
 
-export default PendingContent;
+// 2. Export default que a Vercel exige (com o Suspense Boundary)
+export default function PendingPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="pending-container">
+          <div className="pending-card flex items-center justify-center">
+            <RefreshCw className="animate-spin text-amber-500" size={48} />
+          </div>
+        </main>
+      }
+    >
+      <PendingPageContent />
+    </Suspense>
+  );
+}

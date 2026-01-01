@@ -2,33 +2,26 @@
 
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import {
-  CheckCircle2,
-  Clock,
-  XCircle,
-  Loader2,
-  ArrowRight,
-} from "lucide-react";
+import { CheckCircle2, Clock, XCircle, Loader2 } from "lucide-react";
 import { supabasePublic } from "@/lib/supabaseClient";
 import Link from "next/link";
 import "./success.css";
 
-export const dynamic = "force-dynamic";
-
+// 1. Componente de Conteúdo (Lógica)
 function SuccessContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState<string | null>("approved"); // Força o Sucesso
+  const [status, setStatus] = useState<string | null>("approved");
 
   const externalReference = searchParams.get("external_reference");
 
-  // ⏳ Simulação de delay para processamento do webhook
+  // ⏳ Delay inicial
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 3000);
     return () => clearTimeout(timer);
   }, []);
 
-  // 🔄 Polling do status no Supabase
+  // 🔄 Polling do status
   useEffect(() => {
     if (loading || !externalReference) return;
 
@@ -49,11 +42,11 @@ function SuccessContent() {
     };
 
     checkStatus();
-    const interval = setInterval(checkStatus, 4000); // Tenta a cada 4s
+    const interval = setInterval(checkStatus, 4000);
     return () => clearInterval(interval);
   }, [loading, externalReference]);
 
-  // UI: Carregando Inicial
+  // UI: Carregando
   if (loading || (status === "pending" && !status)) {
     return (
       <div className="status-card">
@@ -88,7 +81,7 @@ function SuccessContent() {
     );
   }
 
-  // UI: Pendente/Aguardando
+  // UI: Pendente
   if (status === "pending" || status === "in_process") {
     return (
       <div className="status-card">
@@ -105,7 +98,7 @@ function SuccessContent() {
     );
   }
 
-  // UI: Erro ou Falha
+  // UI: Erro
   return (
     <div className="status-card">
       <XCircle className="status-icon text-red-500" size={48} />
@@ -121,13 +114,16 @@ function SuccessContent() {
   );
 }
 
-// O App Router exige Suspense para usar useSearchParams
+// 2. Exportação Principal com Suspense Boundary
 export default function SuccessPage() {
   return (
     <main className="status-container">
       <Suspense
         fallback={
-          <Loader2 className="animate-spin text-emerald-500" size={48} />
+          <div className="status-card">
+            <Loader2 className="animate-spin text-emerald-500" size={48} />
+            <h1 className="status-title text-zinc-100">Carregando...</h1>
+          </div>
         }
       >
         <SuccessContent />
