@@ -6,6 +6,15 @@ import { supabaseAdmin } from "@/lib/supabaseClient";
 import { config } from "@/lib/config";
 import { redirect } from "next/navigation";
 
+// Definição de tipos para erros do Mercado Pago (ou similares)
+interface CheckoutError extends Error {
+  response?: {
+    data?: unknown;
+    status?: number;
+  };
+  cause?: unknown;
+}
+
 const client = new MercadoPagoConfig({
   accessToken: config.mercadopago.accessToken,
 });
@@ -36,12 +45,11 @@ export async function handlePurchase(planId: string, userData: UserData) {
       : email;
 
   try {
-    // Validação de Segurança para o TypeScript
     if (!supabaseAdmin) {
-      throw new Error("Erro de configuração: Supabase Admin não inicializado.");
+      throw new Error("Configuração do Banco de Dados ausente.");
     }
 
-    // 1. Registro Inicial (Sempre como PENDING)
+    // 1. Registro no Supabase
     const { error: supabaseError } = await supabaseAdmin.from("sales").insert([
       {
         name,
@@ -76,8 +84,9 @@ export async function handlePurchase(planId: string, userData: UserData) {
           phone: { number: phone.replace(/\D/g, "") },
         },
         back_urls: {
-          success: `${config.siteUrl}/success`,
+          success: `${config.siteUrl}/success?external_reference=${external_reference}`,
           failure: `${config.siteUrl}/failure`,
+          pending: `${config.siteUrl}/pending?external_reference=${external_reference}`,
         },
         auto_return: "approved",
       },
@@ -85,10 +94,27 @@ export async function handlePurchase(planId: string, userData: UserData) {
 
     checkoutUrl = result.init_point;
   } catch (err: unknown) {
-    if (err instanceof Error && err.message === "NEXT_REDIRECT") throw err;
-    console.error("🔥 Erro no Checkout:", err);
-    return { error: "Falha ao iniciar pagamento. Tente novamente." };
+    // Tratamento de redirect interno do Next.js
+    if (err instanceof Error && err.message === "NEXT_REDIRECT") {
+      throw err;
+    }
+
+    // Tipagem segura do erro para LOG
+    const error = err as CheckoutError;
+
+    console.error("🔥 [FALHA NO CHECKOUT]:", {
+      message: error.message || "Erro desconhecido",
+      mp_data: error.response?.data, // Aqui aparece o motivo real do MP (ex: token inválido)
+      stack: error.stack,
+    });
+
+    return {
+      error:
+        "Ocorreu um erro ao processar o pagamento. Verifique os logs do servidor.",
+    };
   }
 
-  if (checkoutUrl) redirect(checkoutUrl);
+  if (checkoutUrl) {
+    redirect(checkoutUrl);
+  }
 }
