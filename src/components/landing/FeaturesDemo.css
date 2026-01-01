@@ -1,0 +1,113 @@
+.features-demo {
+  margin: 3.5rem auto 5rem auto;
+  max-width: 860px;
+  width: 100%;
+}
+
+.features-demo__browser {
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.5),
+    0 0 20px -5px rgba(16, 185, 129, 0.1);
+}
+
+.features-demo__toolbar {
+  background: rgba(30, 41, 59, 0.5);
+  padding: 0.8rem 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.features-demo__dots {
+  display: flex;
+  gap: 8px;
+}
+
+.features-demo__dots span {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.features-demo__address {
+  background: #020617;
+  color: #64748b;
+  font-size: 0.75rem;
+  padding: 6px 16px;
+  border-radius: 20px;
+  flex: 1;
+  text-align: center;
+  font-family: monospace;
+  border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.features-demo__video-container {
+  aspect-ratio: 16 / 9;
+  background: radial-gradient(circle at center, #0f172a, #020617);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.features-demo__placeholder {
+  text-align: center;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.features-demo__placeholder:hover {
+  transform: scale(1.05);
+}
+
+.play-button {
+  width: 64px;
+  height: 64px;
+  background: #10b981;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem auto;
+  font-size: 1.5rem;
+  color: white;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+}
+
+.features-demo__badges {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.demo-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #10b981;
+}
+
+@media (max-width: 640px) {
+  .features-demo__badges {
+    gap: 1rem;
+    flex-direction: column;
+    align-items: center;
+  }
+}

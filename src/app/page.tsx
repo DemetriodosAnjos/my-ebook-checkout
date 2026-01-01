@@ -3,7 +3,10 @@
 import Hero from "@/components/landing/Hero";
 import Pricing from "@/components/landing/Pricing";
 import Features from "@/components/landing/Features";
-
+import Footer from "@/components/landing/Footer";
+import WhatsAppButton from "@/components/landing/WhatsAppButton";
+import TargetAudience from "@/components/landing/TargetAudience";
+import FAQ from "@/components/landing/FAQ";
 export default function LandingPage() {
   // Função para realizar o scroll suave até a seção de preços
   const scrollToPricing = () => {
@@ -26,13 +29,13 @@ export default function LandingPage() {
 
   return (
     <main>
-      {/* Passamos a função como prop para o Hero */}
       <Hero onAction={scrollToPricing} />
-
       <Features />
-
-      {/* O Pricing já deve ter o id="pricing" internamente */}
+      <TargetAudience />
       <Pricing />
+      <FAQ />
+      <Footer />
+      <WhatsAppButton />
     </main>
   );
 }

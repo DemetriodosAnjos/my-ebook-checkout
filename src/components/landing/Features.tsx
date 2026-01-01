@@ -7,6 +7,7 @@ import {
   MousePointerClick,
   Layout,
 } from "lucide-react";
+import FeaturesDemo from "./FeaturesDemo";
 import "./Features.css";
 
 interface FeatureItem {
@@ -18,40 +19,40 @@ interface FeatureItem {
 
 const techStack: FeatureItem[] = [
   {
-    title: "Next.js 15 & React 19",
+    title: "Infraestrutura de Elite",
     description:
-      "Aproveite o poder das Server Actions e do novo React Compiler para performance extrema e SEO impecável.",
+      "Next.js 15 e React 19. Server Actions e React Compiler para quem não aceita menos que performance extrema.",
     icon: <Zap size={24} />,
   },
   {
-    title: "Mercado Pago Hybrid",
+    title: "Vendas no Piloto Automático",
     description:
-      "Checkout pronto para Pix e Cartão com Webhooks automatizados. Dinheiro na conta e acesso liberado na hora.",
+      "Mercado Pago Hybrid (Pix/Cartão). O dinheiro cai na conta e o sistema libera o acesso sem você tocar em nada.",
     icon: <Wallet size={24} />,
     highlight: true,
   },
   {
-    title: "Tailwind CSS v4",
+    title: "Design de Próxima Geração",
     description:
-      "Estilização ultra-rápida com motor Oxide. CSS modular com metodologia BEM para um código limpo e escalável.",
+      "Tailwind v4 com motor Oxide. CSS modular e limpo que não vira uma bagunça quando o projeto cresce.",
     icon: <Layout size={24} />,
   },
   {
-    title: "TypeScript Enterprise",
+    title: "Segurança de Big Tech",
     description:
-      "Arquitetura 100% tipada. Menos tempo corrigindo bugs, mais tempo escalando sua operação digital.",
+      "TypeScript Enterprise. Arquitetura 100% tipada para você parar de debugar erros bobos em produção.",
     icon: <ShieldCheck size={24} />,
   },
   {
-    title: "Entrega Automatizada",
+    title: "Entrega Digital Universal",
     description:
-      "Motor universal de entrega via Google Drive API. Venda PDFs, Links ou Arquivos com liberação imediata.",
+      "Integração nativa com Google Drive API. Venda qualquer arquivo digital com liberação imediata pós-venda.",
     icon: <Share2 size={24} />,
   },
   {
-    title: "Demo de Conversão",
+    title: "Teste a Automação",
     description:
-      "Simule um fluxo real de compra por R$ 1,00 e veja a mágica da automação acontecer diante dos seus olhos.",
+      "Simule um fluxo real por R$ 1,00. Veja o webhook trabalhando e receba o produto no seu e-mail agora.",
     icon: <MousePointerClick size={24} />,
     highlight: true,
   },
@@ -63,14 +64,17 @@ const Features: React.FC = () => {
       <div className="features__container">
         <div className="features__header">
           <h2 className="features__title">
-            A Stack que as Big Techs usam,{" "}
-            <span className="text-emerald-400">pronta para você.</span>
+            Pare de configurar,{" "}
+            <span className="text-emerald-400">comece a vender.</span>
           </h2>
           <p className="features__subtitle">
-            O que levaria semanas, agora leva 5 minutos. Uma estrutura completa,
-            testada e pronta para o campo de batalha.
+            O que levaria semanas configurando Webhooks e APIs, aqui leva 5
+            minutos. A estrutura testada e pronta para o campo de batalha.
           </p>
         </div>
+
+        {/* Seção de Demonstração Visual */}
+        <FeaturesDemo />
 
         <div className="features__grid">
           {techStack.map((item, index) => (

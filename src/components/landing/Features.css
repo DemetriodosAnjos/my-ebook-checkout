@@ -1,15 +1,15 @@
 @reference "tailwindcss";
 
 .features {
-  @apply bg-slate-950 py-32 px-6;
+  @apply bg-[#020617] py-24 px-6;
 }
 
 .features__container {
-  @apply max-w-7xl mx-auto;
+  @apply max-w-6xl mx-auto;
 }
 
 .features__header {
-  @apply text-center mb-20;
+  @apply text-center mb-16;
 }
 
 .features__title {
@@ -17,39 +17,57 @@
 }
 
 .features__subtitle {
-  @apply text-slate-400 text-lg max-w-3xl mx-auto leading-relaxed;
+  @apply text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed;
 }
 
 .features__grid {
-  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6;
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8;
 }
 
-/* Card Base */
+/* --- Card Base --- */
 .feature-card {
-  @apply bg-slate-900/40 border border-slate-800 p-8 rounded-3xl 
-         transition-all duration-500 ease-out hover:scale-[1.02] 
-         hover:bg-slate-900/60 hover:border-slate-700;
+  @apply bg-slate-900/40 border border-slate-800 p-8 rounded-[2rem] 
+         transition-all duration-300 ease-in-out flex flex-col items-start;
 }
 
-/* Card Destaque (Conversão) */
-.feature-card--highlight {
-  @apply border-emerald-500/30 bg-gradient-to-b from-slate-900 to-slate-950
-         shadow-2xl shadow-emerald-500/5 ring-1 ring-emerald-500/20;
+.feature-card:hover {
+  @apply border-slate-700 bg-slate-900/60 -translate-y-2 shadow-xl;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
 }
 
+/* --- Ícone --- */
 .feature-card__icon {
-  @apply w-14 h-14 bg-emerald-500/10 rounded-2xl flex items-center justify-center 
-         mb-8 text-emerald-400 transition-transform duration-500;
+  @apply w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center 
+         mb-6 text-emerald-400 transition-all duration-300;
 }
 
 .feature-card:hover .feature-card__icon {
-  @apply scale-110 rotate-3 bg-emerald-500/20;
+  @apply bg-emerald-500/20 scale-110;
 }
 
+/* --- Textos --- */
 .feature-card__title {
-  @apply text-xl font-bold text-white mb-4;
+  @apply text-xl font-bold text-white mb-3;
 }
 
 .feature-card__description {
   @apply text-slate-400 text-sm leading-relaxed;
+}
+
+/* --- Modificador: Highlight --- */
+.feature-card--highlight {
+  @apply border-emerald-500/40 bg-gradient-to-br from-slate-900 to-emerald-950/20 
+         relative overflow-hidden;
+}
+
+/* Badge de Recomendado */
+.feature-card--highlight::after {
+  content: "RECOMENDADO";
+  @apply absolute top-4 right-4 text-[10px] font-bold text-emerald-400 
+         bg-emerald-400/10 px-2 py-1 rounded-full border border-emerald-400/20;
+}
+
+.feature-card--highlight .feature-card__icon {
+  @apply bg-emerald-500 text-slate-950;
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
 }

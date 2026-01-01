@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Sparkles, TestTube } from "lucide-react"; // Importei TestTube para o ícone de teste
+import { Check, Sparkles, TestTube, Rocket, ShieldCheck } from "lucide-react";
 import CheckoutModal from "../checkout/CheckoutModal";
 import "./Pricing.css";
 
@@ -14,33 +14,33 @@ const Pricing = () => {
 
   const plans = [
     {
-      id: "teste", // ID que deve bater com o backend
-      name: "Plano de Teste",
-      price: "R$ 0,55",
+      id: "teste",
+      name: "Ambiente de Teste",
+      price: "0,55",
       period: "/único",
       description:
-        "Valide o fluxo de pagamento real com o menor valor possível.",
+        "Valide o fluxo real de aprovação e entrega automática agora.",
       features: [
         "Checkout Real (Pix)",
-        "Teste de Webhooks",
-        "Teste de E-mail",
-        "Redirecionamento Automático",
+        "Teste de Webhooks Real-time",
+        "Disparo de E-mail de Entrega",
+        "Redirecionamento Pós-venda",
       ],
-      button: "Testar Agora",
+      button: "Testar Fluxo",
       highlight: false,
-      isTest: true, // Flag opcional para estilização
+      isTest: true,
     },
     {
       id: "anual",
       name: "Acesso Anual",
-      price: "R$ 197",
+      price: "297",
       period: "/ano",
-      description: "Ideal para quem está começando seu primeiro SaaS.",
+      description: "Para quem quer lançar o primeiro SaaS com segurança.",
       features: [
         "Next.js 15 Boilerplate",
-        "Suporte via Discord",
-        "Atualizações por 1 ano",
-        "Documentação Completa",
+        "Integração Mercado Pago",
+        "Setup Supabase & Auth",
+        "1 Ano de Atualizações",
       ],
       button: "Começar Agora",
       highlight: false,
@@ -48,15 +48,14 @@ const Pricing = () => {
     {
       id: "vitalicio",
       name: "Acesso Vitalício",
-      price: "R$ 497",
-      period: "",
-      description: "Para desenvolvedores sérios que querem escala real.",
+      price: "497",
+      period: "/vitalício",
+      description: "Para desenvolvedores sérios que buscam escala ilimitada.",
       features: [
         "Tudo do plano Anual",
-        "Atualizações Vitalícias",
-        "Acesso ao Repositório Private",
+        "Acesso ao Repo Privado",
         "Módulos de IA inclusos",
-        "Suporte Prioritário",
+        "Suporte Prioritário Discord",
       ],
       button: "Obter Acesso Vitalício",
       highlight: true,
@@ -72,8 +71,8 @@ const Pricing = () => {
             <span className="text-emerald-400">paga em horas.</span>
           </h2>
           <p className="pricing__subtitle">
-            Economize mais de 100 horas de setup e vá direto ao que importa: seu
-            faturamento.
+            Economize mais de 40 horas de setup manual. O que levava semanas,
+            agora leva 5 minutos.
           </p>
         </div>
 
@@ -91,10 +90,9 @@ const Pricing = () => {
                 </div>
               )}
 
-              {/* Badge visual para o plano de teste */}
               {plan.isTest && (
-                <div className="pricing__badge bg-amber-500/20 text-amber-400 border-amber-500/30">
-                  <TestTube size={14} /> AMBIENTE REAL
+                <div className="pricing__badge pricing__badge--test">
+                  <TestTube size={14} /> LAB DE TESTE
                 </div>
               )}
 
@@ -102,9 +100,7 @@ const Pricing = () => {
 
               <div className="pricing__price-wrapper">
                 <span className="pricing__currency">R$</span>
-                <span className="pricing__price">
-                  {plan.price.replace("R$ ", "")}
-                </span>
+                <span className="pricing__price">{plan.price}</span>
                 <span className="pricing__period">{plan.period}</span>
               </div>
 
@@ -118,7 +114,7 @@ const Pricing = () => {
                       className={
                         plan.isTest ? "text-amber-500" : "text-emerald-500"
                       }
-                    />{" "}
+                    />
                     {feat}
                   </li>
                 ))}
@@ -129,14 +125,14 @@ const Pricing = () => {
                   setSelectedPlan({
                     id: plan.id,
                     name: plan.name,
-                    price: plan.price,
+                    price: `R$ ${plan.price}`,
                   })
                 }
                 className={`pricing__button ${
                   plan.highlight
                     ? "pricing__button--primary"
                     : plan.isTest
-                    ? "bg-amber-600 hover:bg-amber-700 text-white"
+                    ? "pricing__button--test"
                     : "pricing__button--outline"
                 }`}
               >
