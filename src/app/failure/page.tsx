@@ -7,6 +7,8 @@ import { supabasePublic } from "@/lib/supabaseClient";
 import Link from "next/link";
 import "./failure.css";
 
+export const dynamic = "force-dynamic";
+
 function FailureContent() {
   const searchParams = useSearchParams();
   const router = useRouter();

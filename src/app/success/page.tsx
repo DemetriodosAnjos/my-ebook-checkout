@@ -13,6 +13,8 @@ import { supabasePublic } from "@/lib/supabaseClient";
 import Link from "next/link";
 import "./success.css";
 
+export const dynamic = "force-dynamic";
+
 function SuccessContent() {
   const searchParams = useSearchParams();
   const [loading, setLoading] = useState(true);

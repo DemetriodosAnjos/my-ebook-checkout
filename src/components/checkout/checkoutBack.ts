@@ -36,19 +36,22 @@ export async function handlePurchase(planId: string, userData: UserData) {
   const external_reference = uuidv4();
   let checkoutUrl: string | undefined;
 
-  // Lógica para tratar e-mail de teste/sandbox
-  // Se você digitar o ID de teste do MP no modal, ele completa o domínio
+  // Lógica de fallback para e-mail (Mantida por segurança, mas em produção usará o real)
   const finalEmail =
     email.startsWith("TESTUSER") && !email.includes("@")
       ? `${email}@testuser.com`
       : email;
 
   try {
-    // 1. Registro no Supabase
-    console.log("📡 [SUPABASE] Inserindo venda...", {
-      email: finalEmail,
-      external_reference,
-    });
+    // 1. Registro no Supabase com verificação de nulidade (Type Safety)
+    console.log("📡 [SUPABASE] Tentando inserir venda...");
+
+    if (!supabaseAdmin) {
+      console.error(
+        "❌ [ERRO] Cliente Supabase Admin não inicializado. Verifique as variáveis de ambiente."
+      );
+      throw new Error("Erro de configuração no servidor de banco de dados.");
+    }
 
     const { error: supabaseError } = await supabaseAdmin.from("sales").insert([
       {
@@ -68,8 +71,10 @@ export async function handlePurchase(planId: string, userData: UserData) {
       throw new Error(`Erro Supabase: ${supabaseError.message}`);
     }
 
+    console.log("✅ [SUPABASE] Venda registrada como pendente.");
+
     // 2. Criação da Preferência no Mercado Pago
-    console.log("💳 [MERCADO PAGO] Gerando preferência para:", finalEmail);
+    console.log("💳 [MERCADO PAGO] Gerando preferência...");
 
     const result = await preferenceClient.create({
       body: {
@@ -85,14 +90,13 @@ export async function handlePurchase(planId: string, userData: UserData) {
         external_reference,
         payer: {
           email: finalEmail,
-          name: userData.name,
+          name: name,
           phone: {
-            // Garante que enviamos apenas números, como o MP exige
-            number: userData.phone.replace(/\D/g, ""),
+            number: phone.replace(/\D/g, ""),
           },
         },
         payment_methods: {
-          excluded_payment_types: [{ id: "ticket" }], // Remove boleto
+          excluded_payment_types: [{ id: "ticket" }], // Remove boleto para focar em conversão
           installments: 12,
         },
         back_urls: {
@@ -106,26 +110,27 @@ export async function handlePurchase(planId: string, userData: UserData) {
 
     checkoutUrl = result.init_point;
 
-    if (!checkoutUrl) throw new Error("Link de pagamento não gerado.");
+    if (!checkoutUrl)
+      throw new Error("Link de pagamento não gerado pelo Mercado Pago.");
 
-    console.log("✅ [MERCADO PAGO] Preferência criada com sucesso!");
+    console.log("✅ [MERCADO PAGO] Preferência criada:", result.id);
   } catch (err: unknown) {
-    // Permite que o Next.js lide com o erro de redirecionamento interno
+    // IMPORTANTE: Deixa o Next.js tratar o redirect interno
     if (err instanceof Error && err.message === "NEXT_REDIRECT") {
       throw err;
     }
 
-    console.error("🔥 [FALHA NO CHECKOUT]:", err);
+    console.error("🔥 [FALHA CRÍTICA NO CHECKOUT]:", err);
 
     return {
       error:
-        "Não foi possível iniciar o checkout. Verifique se os dados de teste estão corretos.",
+        "Ocorreu um erro ao processar seu pagamento. Por favor, tente novamente.",
     };
   }
 
   // 3. Redirecionamento Final
   if (checkoutUrl) {
-    console.log("🌐 [REDIRECT] Redirecionando para o gateway...");
+    console.log("🌐 [REDIRECT] Encaminhando para checkout seguro...");
     redirect(checkoutUrl);
   }
 }
