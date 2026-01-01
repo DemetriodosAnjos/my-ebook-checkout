@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { MercadoPagoConfig, Payment } from "mercadopago";
 import { supabaseAdmin } from "@/lib/supabaseClient";
+import { config } from "@/lib/config";
 
-// 1. Configuração do Transporter com checagem de tipos
+// 1. Configuração do Transporter (Nodemailer)
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT),
@@ -19,90 +20,109 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { type, data } = body;
 
+    console.log("📦 [WEBHOOK RECEBIDO]:", JSON.stringify(body, null, 2));
+
     // Ignora se não for evento de pagamento
-    if (type !== "payment") {
-      return NextResponse.json({ message: "Evento ignorado" }, { status: 200 });
+    if (type !== "payment" || !data?.id) {
+      return NextResponse.json(
+        { message: "Evento não processável" },
+        { status: 200 }
+      );
     }
 
-    // Validação de variáveis de ambiente obrigatórias
-    const accessToken = process.env.MP_ACCESS_TOKEN; // Usando o padrão que definimos antes
-    if (!accessToken) {
-      throw new Error("MERCADO_PAGO_ACCESS_TOKEN não configurado.");
-    }
-
-    const client = new MercadoPagoConfig({ accessToken });
+    const client = new MercadoPagoConfig({
+      accessToken: config.mercadopago.accessToken,
+    });
     const paymentClient = new Payment(client);
 
-    // Consulta detalhes do pagamento
+    // Consulta detalhes do pagamento no Mercado Pago
     const payment = await paymentClient.get({ id: data.id });
     const status = payment.status;
     const externalReference = payment.external_reference;
     let buyerEmail = payment.payer?.email;
 
-    // 2. Atualiza o status no Supabase (RESOLVENDO ERRO DE BUILD)
-    if (externalReference) {
-      // O Pulo do Gato: Type Guard para o TypeScript não reclamar de 'null'
-      if (!supabaseAdmin) {
-        console.error("❌ [WEBHOOK] SupabaseAdmin não inicializado.");
-        return NextResponse.json(
-          { error: "Database connection failed" },
-          { status: 500 }
-        );
-      }
+    console.log(
+      `🔍 [PAGAMENTO ${data.id}]: Status: ${status} | Ref: ${externalReference}`
+    );
 
-      const { data: saleData, error: dbError } = await supabaseAdmin
-        .from("sales")
-        .update({
-          status: status,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("external_reference", externalReference)
-        .select("email")
-        .single();
-
-      if (dbError) {
-        console.error("❌ [DATABASE ERROR]:", dbError.message);
-      }
-
-      // Se o MP não enviou o e-mail, usamos o do banco
-      if (!buyerEmail && saleData) {
-        buyerEmail = saleData.email;
-      }
+    if (!externalReference) {
+      console.warn("⚠️ Webhook ignorado: external_reference ausente.");
+      return NextResponse.json(
+        { message: "Sem referência externa" },
+        { status: 200 }
+      );
     }
 
-    // 3. FLUXO DE APROVAÇÃO
+    if (!supabaseAdmin) {
+      throw new Error("SupabaseAdmin não inicializado.");
+    }
+
+    // 2. ATUALIZAÇÃO NO SUPABASE
+    // Buscamos o e-mail cadastrado na venda caso o MP não envie ou venha um e-mail de teste
+    const { data: saleData, error: dbError } = await supabaseAdmin
+      .from("sales")
+      .update({
+        status: status,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("external_reference", externalReference)
+      .select("email, name")
+      .single();
+
+    if (dbError) {
+      console.error("❌ [ERRO DB]:", dbError.message);
+    }
+
+    // Prioriza o e-mail do nosso banco (garante que o acesso vá para quem preencheu o formulário)
+    if (saleData?.email) {
+      buyerEmail = saleData.email;
+    }
+
+    // 3. FLUXO DE APROVAÇÃO E ENVIO DE E-MAIL
     if (status === "approved" && buyerEmail) {
-      console.log(`🚀 [APROVADO] Enviando acesso para: ${buyerEmail}`);
+      console.log(`🚀 [LIBERANDO ACESSO]: ${buyerEmail}`);
+
+      const driveLink =
+        "https://drive.google.com/file/d/1YTgGJKucsA6uZfu7OhcvdKewueS7z0Ce/view?usp=sharing";
+      const repoLink = "https://github.com/DemetriodosAnjos/boilerplate";
 
       await transporter.sendMail({
-        from: `"Suporte Boilerplate" <${process.env.SMTP_USER}>`,
+        from: `"Suporte Developer 5TB" <${process.env.SMTP_USER}>`,
         to: buyerEmail,
-        subject: "Seu acesso foi liberado 🎉",
+        subject: "Seu acesso ao material foi liberado 🎉",
         html: `
           <div style="font-family: sans-serif; max-width: 600px; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
-            <h2 style="color: #10b981;">Pagamento Confirmado!</h2>
-            <p>Olá! Seu pagamento foi processado com sucesso e seu acesso já está disponível.</p>
-            <div style="margin: 30px 0;">
-              <a href="${process.env.DOWNLOAD_LINK}" 
-                 style="background: #10b981; color: white; padding: 14px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-                 Acessar Minha Área de Membros
-              </a>
+            <h2 style="color: #10b981;">Parabéns, ${
+              saleData?.name || "seu"
+            } pagamento foi aprovado!</h2>
+            <p>Seu acesso ao <strong>Boilerplate</strong> e aos materiais complementares já está disponível nos links abaixo:</p>
+            
+            <div style="margin: 25px 0;">
+              <p><strong>1. Repositório do Código:</strong></p>
+              <a href="${repoLink}" style="background: #333; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Acessar Github</a>
             </div>
-            <p style="font-size: 12px; color: #666;">Se o botão não funcionar, copie este link: ${process.env.DOWNLOAD_LINK}</p>
+
+            <div style="margin: 25px 0;">
+              <p><strong>2. Material Complementar (Drive):</strong></p>
+              <a href="${driveLink}" style="background: #10b981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Baixar Instruções</a>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+            <p style="font-size: 14px; color: #666;">Obrigado pela confiança e bons estudos 🚀</p>
           </div>
         `,
       });
+
+      console.log("✅ E-mail enviado com sucesso!");
     }
 
     return NextResponse.json({ status: "processed" }, { status: 200 });
-  } catch (error) {
-    // Tratamento de erro sem 'any'
+  } catch (error: unknown) {
     const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
+      error instanceof Error ? error.message : "Erro desconhecido";
     console.error("🔥 [Webhook Error]:", errorMessage);
-
     return NextResponse.json(
-      { error: "Internal Server Error", details: errorMessage },
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }
