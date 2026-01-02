@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, ArrowRight, Zap, Loader2 } from "lucide-react";
+import { Check, ArrowRight, Zap, Loader2, Sparkles } from "lucide-react";
 import { createDiscountedCheckout } from "@/app/actions/checkoutResgate";
 import "./PricingResgate.css";
 
@@ -25,48 +25,89 @@ export default function PricingResgate({ userId }: { userId: string }) {
     {
       id: "anual",
       name: "Acesso Anual",
-      old: "R$ 297",
-      new: "R$ 198",
-      feat: false,
+      oldPrice: "297",
+      newPrice: "198",
+      period: "/ano",
+      description: "Ideal para validar seu primeiro SaaS rapidamente.",
+      features: [
+        "Next.js 15 Boilerplate",
+        "Integração Mercado Pago",
+        "Setup Supabase & Auth",
+        "1 ano de Atualizações",
+      ],
+      Highlight: false,
     },
     {
-      id: "vitalicio",
+      id: "vitalício",
       name: "Acesso Vitalício",
-      old: "R$ 497",
-      new: "R$ 398",
-      feat: true,
+      oldPrice: "497",
+      newPrice: "398",
+      period: "/vitalício",
+      description: "O controle total do seu faturamento para sempre.",
+      features: [
+        "Tudo do plano Anual",
+        "Acesso ao Repo Privado",
+        "Suporte Prioritário Discord",
+        "Desconto Adicional Aplicado",
+      ],
+      Highlight: true,
     },
   ];
 
   return (
-    <div className="pricing-resgate-grid">
+    <div className="pricing__grid pricing-resgate-custom">
       {plans.map((plan) => (
         <div
           key={plan.id}
-          className={`card-resgate ${plan.feat ? "featured" : ""}`}
+          className={`pricing__card ${
+            plan.highlight ? "pricing__card--highlight" : ""
+          }`}
         >
-          <div className="badge-voucher">R$ 99 OFF ATIVADO</div>
-          <span className="plan-name">{plan.name}</span>
-          <div className="price-container">
-            <span className="price-original">{plan.old}</span>
+          {/* Badge de Voucher - Centralizado e chamativo */}
+          <div className="pricing__badge pricing__badge--resgate">
+            <Sparkles size={14} /> R$ 99,00 OFF APLICADO
+          </div>
+
+          <h3 className="pricing__plan-name mt-4">{plan.name}</h3>
+
+          <div className="pricing__price-wrapper !flex-col !items-start gap-1">
+            <span className="text-slate-500 line-through text-lg font-medium">
+              R$ {plan.oldPrice}
+            </span>
             <div className="flex items-baseline">
-              <span className="price-discounted">{plan.new}</span>
+              <span className="pricing__currency">R$</span>
+              <span className="pricing__price">{plan.newPrice}</span>
+              <span className="pricing__period">{plan.period}</span>
             </div>
           </div>
+
+          <p className="pricing__description">{plan.description}</p>
+
+          <ul className="pricing__features">
+            {plan.features.map((feat, idx) => (
+              <li key={idx} className="pricing__feature">
+                <Check size={18} className="text-emerald-500" />
+                <span>{feat}</span>
+              </li>
+            ))}
+          </ul>
+
           <button
             onClick={() => handlePurchase(plan.id)}
             disabled={!!loading}
-            className={`btn-checkout-resgate ${
-              plan.feat ? "primary" : "secondary"
-            }`}
+            className={`pricing__button ${
+              plan.highlight
+                ? "pricing__button--primary"
+                : "pricing__button--outline"
+            } flex items-center justify-center gap-2`}
           >
             {loading === plan.id ? (
               <Loader2 className="animate-spin" />
-            ) : plan.feat ? (
+            ) : plan.highlight ? (
               <Zap size={18} />
             ) : null}
             {loading === plan.id ? "Processando..." : "Garantir com Desconto"}
-            <ArrowRight size={18} />
+            {loading !== plan.id && <ArrowRight size={18} />}
           </button>
         </div>
       ))}
