@@ -3,9 +3,8 @@ import React from "react";
 import "./Hero.css";
 import { ArrowRight, Play } from "lucide-react";
 
-// Definindo a interface para as propriedades do componente
 interface HeroProps {
-  onAction: () => void; // Esta função será o scroll para o Pricing
+  onAction: () => void;
 }
 
 const Hero: React.FC<HeroProps> = ({ onAction }) => {
@@ -15,18 +14,17 @@ const Hero: React.FC<HeroProps> = ({ onAction }) => {
         <span className="hero__badge">Next.js 15 + Tailwind 4 Ready</span>
 
         <h1 className="hero__title">
-          Pare de configurar. <br />
-          <span className="text-emerald-400">Comece a faturar.</span>
+          Venda e receba <br />
+          <span className="text-emerald-400">sem intermediários.</span>
         </h1>
 
         <p className="hero__description">
-          O Boilerplate definitivo para quem não tem tempo a perder. Venda seus
-          produtos digitais com a estrutura usada pelas grandes startups,
-          configurada em minutos, não semanas.
+          Uma plataforma de recebimento direto na sua conta, sem taxas abusivas
+          e sem sócios ocultos. O boilerplate definitivo para quem quer o
+          controle total do faturamento e a performance das grandes startups.
         </p>
 
         <div className="hero__actions">
-          {/* Botão Principal: Agora executa a prop onAction */}
           <button
             onClick={onAction}
             className="header__button header__button--primary px-8 py-4 text-base flex items-center gap-2"
@@ -35,12 +33,18 @@ const Hero: React.FC<HeroProps> = ({ onAction }) => {
             <ArrowRight size={20} />
           </button>
 
-          {/* Botão Secundário: Também pode levar ao Pricing para simulação */}
           <button
             onClick={onAction}
-            className="header__button header__button--outline px-8 py-4 text-base flex items-center gap-2"
+            /* Mantive as classes originais e adicionei apenas flex-col para o novo texto */
+            className="header__button header__button--outline px-8 py-4 text-base flex flex-col items-center leading-tight transition-transform active:scale-95"
           >
-            <Play size={18} fill="currentColor" /> Simular Compra (R$ 1,00)
+            <span className="flex items-center gap-2">
+              <Play size={18} fill="currentColor" /> Teste o Webhook (R$ 0,99)
+            </span>
+            {/* Texto estratégico injetado sem alterar o CSS pai */}
+            <span className="text-[10px] text-emerald-400 font-black uppercase tracking-tighter mt-1">
+              + Ganhe R$ 99,00 de desconto real
+            </span>
           </button>
         </div>
       </div>

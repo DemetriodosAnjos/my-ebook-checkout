@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, Sparkles, TestTube, Rocket, ShieldCheck } from "lucide-react";
+import { Check, Sparkles, TestTube, Gift } from "lucide-react";
 import CheckoutModal from "../checkout/CheckoutModal";
 import "./Pricing.css";
 
@@ -15,18 +15,17 @@ const Pricing = () => {
   const plans = [
     {
       id: "teste",
-      name: "Ambiente de Teste",
-      price: "0,55",
+      name: "Simular Webhook",
+      price: "0,99",
       period: "/único",
-      description:
-        "Valide o fluxo real de aprovação e entrega automática agora.",
+      description: "Valide o fluxo real e libere seu voucher de R$ 99,00.",
       features: [
-        "Checkout Real (Pix)",
+        "Checkout Real via Pix",
         "Teste de Webhooks Real-time",
-        "Disparo de E-mail de Entrega",
-        "Redirecionamento Pós-venda",
+        "Receba E-mail de Entrega",
+        "Ganha Voucher de R$ 99,00 OFF", // Reforço da oferta do Hero
       ],
-      button: "Testar Fluxo",
+      button: "Testar Agora",
       highlight: false,
       isTest: true,
     },
@@ -35,7 +34,7 @@ const Pricing = () => {
       name: "Acesso Anual",
       price: "297",
       period: "/ano",
-      description: "Para quem quer lançar o primeiro SaaS com segurança.",
+      description: "Ideal para validar seu primeiro projeto SaaS rapidamente.",
       features: [
         "Next.js 15 Boilerplate",
         "Integração Mercado Pago",
@@ -50,12 +49,12 @@ const Pricing = () => {
       name: "Acesso Vitalício",
       price: "497",
       period: "/vitalício",
-      description: "Para desenvolvedores sérios que buscam escala ilimitada.",
+      description: "O controle total do seu faturamento para sempre.",
       features: [
         "Tudo do plano Anual",
         "Acesso ao Repo Privado",
-        "Módulos de IA inclusos",
         "Suporte Prioritário Discord",
+        "Aceita Voucher de R$ 99,00", // Ancoragem do desconto
       ],
       button: "Obter Acesso Vitalício",
       highlight: true,
@@ -71,8 +70,8 @@ const Pricing = () => {
             <span className="text-emerald-400">paga em horas.</span>
           </h2>
           <p className="pricing__subtitle">
-            Economize mais de 40 horas de setup manual. O que levava semanas,
-            agora leva 5 minutos.
+            Escolha o plano ideal para o seu momento. Teste nossa tecnologia por
+            menos de um real.
           </p>
         </div>
 
@@ -92,7 +91,7 @@ const Pricing = () => {
 
               {plan.isTest && (
                 <div className="pricing__badge pricing__badge--test">
-                  <TestTube size={14} /> LAB DE TESTE
+                  <Gift size={14} /> GANHE R$ 99,00 OFF
                 </div>
               )}
 
@@ -115,7 +114,15 @@ const Pricing = () => {
                         plan.isTest ? "text-amber-500" : "text-emerald-500"
                       }
                     />
-                    {feat}
+                    <span
+                      className={
+                        feat.includes("R$ 99,00")
+                          ? "font-bold text-emerald-400"
+                          : ""
+                      }
+                    >
+                      {feat}
+                    </span>
                   </li>
                 ))}
               </ul>

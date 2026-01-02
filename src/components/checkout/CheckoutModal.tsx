@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { X, Lock, ArrowRight, Sparkles } from "lucide-react"; // Importado Sparkles
+import { X, Lock, ArrowRight, Sparkles, Gift, ShieldCheck } from "lucide-react";
 import { handlePurchase } from "./checkoutBack";
 import "./CheckoutModal.css";
 
@@ -25,24 +25,19 @@ const CheckoutModal = ({
 
   if (!isOpen) return null;
 
+  const isTestPlan = planId === "teste";
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // Chamamos a Action.
-      // Se der sucesso, o Next.js fará o redirect automaticamente.
       const result = await handlePurchase(planId, formData);
-
-      // Se a Action retornou um objeto com erro (em vez de redirecionar)
       if (result?.error) {
         alert(result.error);
         setLoading(false);
       }
     } catch (error: any) {
-      // IMPORTANTE: Não interrompa o redirecionamento!
-      // O Next.js usa erros para redirecionar em Server Actions.
-      // Só tratamos erros que não sejam de redirecionamento.
       if (error.message !== "NEXT_REDIRECT") {
         console.error("Erro no checkout:", error);
         alert("Ocorreu um erro inesperado. Tente novamente.");
@@ -52,10 +47,7 @@ const CheckoutModal = ({
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Remove tudo que NÃO for número
     const value = e.target.value.replace(/\D/g, "");
-
-    // Limita a 11 dígitos (DDD + 9 + 8 dígitos)
     if (value.length <= 11) {
       setFormData({ ...formData, phone: value });
     }
@@ -76,15 +68,32 @@ const CheckoutModal = ({
 
         <div className="modal-body">
           <header className="modal-header">
-            {/* Tag Badge Consistente com o Pricing */}
-            <div className="modal-tag-badge">
-              <Sparkles size={14} />
-              {planId === "vitalicio" ? "MELHOR ESCOLHA" : "CHECKOUT SEGURO"}
+            {/* Tag Badge Dinâmica baseada no Plano */}
+            <div
+              className={`modal-tag-badge ${
+                isTestPlan ? "!bg-amber-500/20 !text-amber-500" : ""
+              }`}
+            >
+              {isTestPlan ? (
+                <>
+                  <Gift size={14} /> GANHE R$ 99,00 OFF
+                </>
+              ) : planId === "vitalicio" ? (
+                <>
+                  <Sparkles size={14} /> MELHOR ESCOLHA
+                </>
+              ) : (
+                <>
+                  <ShieldCheck size={14} /> CHECKOUT SEGURO
+                </>
+              )}
             </div>
 
             <h2 className="modal-title">{planName}</h2>
             <p className="modal-subtitle">
-              Economize semanas de trabalho configurando infraestrutura.
+              {isTestPlan
+                ? "Finalize o teste de R$ 0,99 para liberar seu cupom no e-mail."
+                : "Você está a um passo de garantir o controle total do seu faturamento."}
             </p>
           </header>
 
@@ -115,6 +124,11 @@ const CheckoutModal = ({
                   setFormData({ ...formData, email: e.target.value })
                 }
               />
+              {isTestPlan && (
+                <span className="text-[10px] text-emerald-400 font-bold mt-1 block">
+                  * Verifique seu e-mail para receber o voucher após o teste.
+                </span>
+              )}
             </div>
 
             <div className="form-group">
@@ -125,20 +139,24 @@ const CheckoutModal = ({
                 placeholder="(99) 99999-9999"
                 className="form-input"
                 value={formData.phone}
-                onChange={handlePhoneChange} // Usa a função de filtro
+                onChange={handlePhoneChange}
               />
-              <span className="text-[10px] text-zinc-500 mt-1 block">
-                Digite apenas os números com DDD
-              </span>
             </div>
 
-            <button disabled={loading} className="modal-submit-btn">
+            <button
+              disabled={loading}
+              className={`modal-submit-btn ${
+                isTestPlan
+                  ? "!bg-amber-500 !text-amber-950 hover:!bg-amber-400"
+                  : ""
+              }`}
+            >
               {loading ? "Processando..." : `Pagar ${price}`}
               {!loading && <ArrowRight size={18} />}
             </button>
 
             <footer className="modal-footer">
-              <Lock size={12} /> Pagamento processado via Mercado Pago.
+              <Lock size={12} /> Pagamento 100% seguro via Mercado Pago.
             </footer>
           </form>
         </div>

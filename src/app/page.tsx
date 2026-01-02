@@ -1,12 +1,14 @@
 "use client"; // Obrigatório para usar funções de scroll e eventos de clique
 
+import SocialProof from "@/components/landing/SocialProof";
 import Hero from "@/components/landing/Hero";
-import Pricing from "@/components/landing/Pricing";
 import Features from "@/components/landing/Features";
+import TargetAudience from "@/components/landing/TargetAudience";
+import Pricing from "@/components/landing/Pricing";
+import FAQ from "@/components/landing/FAQ";
 import Footer from "@/components/landing/Footer";
 import WhatsAppButton from "@/components/landing/WhatsAppButton";
-import TargetAudience from "@/components/landing/TargetAudience";
-import FAQ from "@/components/landing/FAQ";
+
 export default function LandingPage() {
   // Função para realizar o scroll suave até a seção de preços
   const scrollToPricing = () => {
@@ -29,6 +31,7 @@ export default function LandingPage() {
 
   return (
     <main>
+      <SocialProof />
       <Hero onAction={scrollToPricing} />
       <Features />
       <TargetAudience />

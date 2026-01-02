@@ -1,0 +1,30 @@
+@reference "tailwindcss";
+
+.timer-container {
+  @apply mt-8 p-0.5 rounded-2xl bg-gradient-to-r from-emerald-500 via-amber-500 to-emerald-500 bg-[length:200%_200%] animate-[gradient_3s_linear_infinite];
+}
+
+.timer-box {
+  @apply bg-[#020617] px-10 py-5 rounded-[14px] flex flex-col items-center min-w-[200px];
+}
+
+.timer-label {
+  @apply text-zinc-500 text-[10px] font-black tracking-[0.2em] uppercase mb-2;
+}
+
+.timer-counter {
+  @apply text-4xl font-mono font-black text-white tabular-nums tracking-tight;
+}
+
+/* Animação do gradiente para dar um ar de "urgência tecnológica" */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}

@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import FeaturesDemo from "./FeaturesDemo";
 import "./Features.css";
+import FeeComparison from "./FeeComparison";
 
 interface FeatureItem {
   title: string;
@@ -61,6 +62,8 @@ const techStack: FeatureItem[] = [
 const Features: React.FC = () => {
   return (
     <section className="features">
+      <FeaturesDemo />
+      <FeeComparison />
       <div className="features__container">
         <div className="features__header">
           <h2 className="features__title">
@@ -72,9 +75,6 @@ const Features: React.FC = () => {
             minutos. A estrutura testada e pronta para o campo de batalha.
           </p>
         </div>
-
-        {/* Seção de Demonstração Visual */}
-        <FeaturesDemo />
 
         <div className="features__grid">
           {techStack.map((item, index) => (

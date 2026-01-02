@@ -1,91 +1,66 @@
+@reference "tailwindcss";
+
 .target {
-  padding: 6rem 1.5rem;
-  background-color: #020617; /* Fundo levemente mais escuro para contraste */
+  @apply py-24 px-6 bg-[#020617];
 }
 
 .target__container {
-  max-width: 1000px;
-  margin: 0 auto;
+  @apply max-w-5xl mx-auto;
 }
 
 .target__header {
-  text-align: center;
-  margin-bottom: 4rem;
+  @apply text-center mb-16;
 }
 
-.target__title {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: #fff;
-  margin-bottom: 1rem;
+/* Usando a técnica de especificidade que validamos no FAQ */
+.target .target__title {
+  @apply text-4xl md:text-5xl font-extrabold text-white mb-4;
 }
 
-.target__subtitle {
-  color: #94a3b8;
-  font-size: 1.1rem;
+.target .target__subtitle {
+  @apply text-slate-400 text-lg max-w-2xl mx-auto;
 }
 
 .target__list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  @apply flex flex-col gap-6;
 }
 
 .target-item {
-  display: flex;
-  gap: 1.5rem;
-  padding: 2rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 16px;
-  transition: all 0.3s ease;
+  @apply flex gap-6 p-8 bg-slate-900/40 border border-white/5 rounded-2xl 
+         transition-all duration-300 ease-in-out;
 }
 
 .target-item:hover {
-  border-color: rgba(16, 185, 129, 0.3);
-  transform: translateX(10px);
-  background: rgba(15, 23, 42, 0.8);
+  @apply border-emerald-500/30 bg-slate-900/80 translate-x-3;
 }
 
 .target-item__icon-wrapper {
-  flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  background: rgba(16, 185, 129, 0.1);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @apply shrink-0 w-12 h-12 bg-emerald-500/10 rounded-xl flex items-center justify-center;
 }
 
 .target-icon {
-  color: #10b981;
+  @apply text-emerald-400;
 }
 
 .target-item__title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #fff;
-  margin-bottom: 0.5rem;
+  @apply text-xl font-bold text-white mb-2;
 }
 
 .target-item__description {
-  color: #94a3b8;
-  line-height: 1.6;
-  font-size: 1rem;
+  @apply text-slate-400 leading-relaxed text-base;
 }
 
+/* Ajustes Responsivos */
 @media (max-width: 640px) {
   .target-item {
-    flex-direction: column;
-    padding: 1.5rem;
+    @apply flex-col p-6;
   }
 
   .target-item:hover {
-    transform: translateY(-5px);
+    @apply translate-x-0 -translate-y-1.5;
   }
 
-  .target__title {
-    font-size: 2rem;
+  .target .target__title {
+    @apply !text-3xl;
   }
 }

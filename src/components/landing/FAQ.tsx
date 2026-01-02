@@ -46,6 +46,7 @@ const FAQ: React.FC = () => {
           <div className="faq__icon-wrapper">
             <HelpCircle className="text-emerald-400" size={32} />
           </div>
+
           <h2 className="faq__title">
             Dúvidas <span className="text-emerald-400">Frequentes</span>
           </h2>

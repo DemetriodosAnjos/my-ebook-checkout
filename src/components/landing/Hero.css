@@ -1,7 +1,7 @@
 @reference "tailwindcss";
 
 .hero {
-  @apply relative pt-40 pb-20 px-6 overflow-hidden;
+  @apply relative pt-40 pb-2 px-6 overflow-hidden;
 }
 
 /* Efeito de luz de fundo (Glow) para parecer premium */
