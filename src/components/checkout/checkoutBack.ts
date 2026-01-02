@@ -21,7 +21,7 @@ const client = new MercadoPagoConfig({
 const preferenceClient = new Preference(client);
 
 const PLAN_PRICES: Record<string, number> = {
-  teste: 0.55,
+  teste: 0.99,
   anual: 197.0,
   vitalicio: 497.0,
 };
