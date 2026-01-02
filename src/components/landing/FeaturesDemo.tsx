@@ -15,18 +15,19 @@ const FeaturesDemo: React.FC = () => {
               <span></span>
             </div>
             <div className="features-demo__address">
-              localhost:3000/app/checkout
+              https://boilerplate-nodw.vercel.app/
             </div>
           </div>
           <div className="features-demo__video-container">
-            {/* Substitua a div abaixo pelo seu <video src="..." /> quando tiver gravado */}
-            <div className="features-demo__placeholder">
-              <div className="play-button">▶</div>
-              <p>Assista ao Fluxo de Venda Automática</p>
-              <small className="text-emerald-400/60">
-                (Pagamento → Webhook → Entrega)
-              </small>
-            </div>
+            <iframe
+              className="features-demo__video-iframe"
+              src="https://www.youtube.com/embed/W3E07I9tRo8?si=bXLwiTj6o3VBhy0y"
+              title="YouTube video player"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+            ></iframe>
           </div>
         </div>
 
