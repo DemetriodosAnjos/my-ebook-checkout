@@ -35,7 +35,7 @@ export default function PricingResgate({ userId }: { userId: string }) {
         "Setup Supabase & Auth",
         "1 ano de Atualizações",
       ],
-      Highlight: false,
+      highlight: false,
     },
     {
       id: "vitalício",
@@ -50,7 +50,7 @@ export default function PricingResgate({ userId }: { userId: string }) {
         "Suporte Prioritário Discord",
         "Desconto Adicional Aplicado",
       ],
-      Highlight: true,
+      highlight: true,
     },
   ];
 
