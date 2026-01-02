@@ -10,6 +10,19 @@ export default async function ResgatePage(props: {
   const params = await props.params;
   const id = params.id;
 
+  // 1. Blindagem contra o erro de nulidade (Satisfaz o Build da Vercel)
+  if (!supabaseAdmin) {
+    console.error("🔥 Erro crítico: supabaseAdmin não inicializado.");
+    return (
+      <main className="resgate-page">
+        <div className="expired-box text-white">
+          Erro de conexão com o banco de dados.
+        </div>
+      </main>
+    );
+  }
+
+  // 2. Query com o Admin garantido
   const { data: sale, error } = await supabaseAdmin
     .from("sales")
     .select("name, voucher_expires_at, voucher_used, status")
@@ -28,6 +41,7 @@ export default async function ResgatePage(props: {
     );
   }
 
+  // 3. Verificação de expiração
   const expiresAt = new Date(sale.voucher_expires_at).getTime();
   const now = new Date().getTime();
 
