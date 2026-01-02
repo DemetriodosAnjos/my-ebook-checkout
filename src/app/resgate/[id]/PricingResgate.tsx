@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Check, ArrowRight, Zap, Loader2, Sparkles } from "lucide-react";
+import { Check, ArrowRight, Zap, Loader2, Sparkles, Gift } from "lucide-react";
 import { createDiscountedCheckout } from "@/app/actions/checkoutResgate";
 import "./PricingResgate.css";
 
@@ -26,7 +26,7 @@ export default function PricingResgate({ userId }: { userId: string }) {
       id: "anual",
       name: "Acesso Anual",
       oldPrice: "297",
-      newPrice: "198",
+      price: "198",
       period: "/ano",
       description: "Ideal para validar seu primeiro SaaS rapidamente.",
       features: [
@@ -38,10 +38,10 @@ export default function PricingResgate({ userId }: { userId: string }) {
       highlight: false,
     },
     {
-      id: "vitalício",
+      id: "vitalicio",
       name: "Acesso Vitalício",
       oldPrice: "497",
-      newPrice: "398",
+      price: "398",
       period: "/vitalício",
       description: "O controle total do seu faturamento para sempre.",
       features: [
@@ -63,20 +63,23 @@ export default function PricingResgate({ userId }: { userId: string }) {
             plan.highlight ? "pricing__card--highlight" : ""
           }`}
         >
-          {/* Badge de Voucher - Centralizado e chamativo */}
-          <div className="pricing__badge pricing__badge--resgate">
-            <Sparkles size={14} /> R$ 99,00 OFF APLICADO
+          {/* Badge idêntica ao padrão original */}
+          <div className="pricing__badge">
+            <Gift size={14} /> R$ 99,00 OFF ATIVO
           </div>
 
-          <h3 className="pricing__plan-name mt-4">{plan.name}</h3>
+          <h3 className="pricing__plan-name">{plan.name}</h3>
 
-          <div className="pricing__price-wrapper !flex-col !items-start gap-1">
+          <div
+            className="pricing__price-wrapper"
+            style={{ flexDirection: "column", alignItems: "flex-start" }}
+          >
             <span className="text-slate-500 line-through text-lg font-medium">
               R$ {plan.oldPrice}
             </span>
             <div className="flex items-baseline">
               <span className="pricing__currency">R$</span>
-              <span className="pricing__price">{plan.newPrice}</span>
+              <span className="pricing__price">{plan.price}</span>
               <span className="pricing__period">{plan.period}</span>
             </div>
           </div>
@@ -87,7 +90,15 @@ export default function PricingResgate({ userId }: { userId: string }) {
             {plan.features.map((feat, idx) => (
               <li key={idx} className="pricing__feature">
                 <Check size={18} className="text-emerald-500" />
-                <span>{feat}</span>
+                <span
+                  className={
+                    feat.includes("Desconto")
+                      ? "font-bold text-emerald-400"
+                      : ""
+                  }
+                >
+                  {feat}
+                </span>
               </li>
             ))}
           </ul>
@@ -107,7 +118,7 @@ export default function PricingResgate({ userId }: { userId: string }) {
               <Zap size={18} />
             ) : null}
             {loading === plan.id ? "Processando..." : "Garantir com Desconto"}
-            {loading !== plan.id && <ArrowRight size={18} />}
+            {!loading && <ArrowRight size={18} />}
           </button>
         </div>
       ))}
