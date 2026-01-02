@@ -26,7 +26,7 @@ const Footer: React.FC = () => {
                   <a href="#features">Funcionalidades</a>
                 </li>
                 <li>
-                  <a href="#demo">Demonstração</a>
+                  <a href="#featuresdemo">Demonstração</a>
                 </li>
                 <li>
                   <a href="#pricing">Preços</a>
@@ -41,7 +41,7 @@ const Footer: React.FC = () => {
                   <a href="#faq">Dúvidas</a>
                 </li>
                 <li>
-                  <a href="mailto:suporte@seudominio.com">E-mail</a>
+                  <a href="mailto:ddoanjos@gmail.com">E-mail</a>
                 </li>
                 <li>
                   <a href="#">Documentação</a>
@@ -55,10 +55,7 @@ const Footer: React.FC = () => {
 
         <div className="footer__bottom">
           <div className="footer__info">
-            <p>
-              &copy; {currentYear} Seu Nome ou Empresa. Todos os direitos
-              reservados.
-            </p>
+            <p>&copy; {currentYear} CSCODEX. Todos os direitos reservados.</p>
           </div>
           <div className="footer__payment">
             <span className="footer__payment-text">Pagamento Seguro via</span>

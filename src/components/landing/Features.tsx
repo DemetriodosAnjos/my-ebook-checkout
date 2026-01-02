@@ -61,9 +61,7 @@ const techStack: FeatureItem[] = [
 
 const Features: React.FC = () => {
   return (
-    <section className="features">
-      <FeaturesDemo />
-      <FeeComparison />
+    <section className="features" id="features">
       <div className="features__container">
         <div className="features__header">
           <h2 className="features__title">

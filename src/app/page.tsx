@@ -3,6 +3,8 @@
 import SocialProof from "@/components/landing/SocialProof";
 import Hero from "@/components/landing/Hero";
 import Features from "@/components/landing/Features";
+import FeaturesDemo from "@/components/landing/FeaturesDemo";
+import FeeComparison from "@/components/landing/FeeComparison";
 import TargetAudience from "@/components/landing/TargetAudience";
 import Pricing from "@/components/landing/Pricing";
 import FAQ from "@/components/landing/FAQ";
@@ -33,7 +35,9 @@ export default function LandingPage() {
     <main>
       <SocialProof />
       <Hero onAction={scrollToPricing} />
+      <FeaturesDemo />
       <Features />
+      <FeeComparison />
       <TargetAudience />
       <Pricing />
       <FAQ />
