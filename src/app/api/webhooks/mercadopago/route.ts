@@ -28,14 +28,10 @@ export async function POST(request: Request) {
 
     const status = payment.status;
     const externalReference = payment.external_reference;
-
-    // TENSIONANDO A LOGICA: Não dependa apenas de metadata.
-    // O valor da transação (transaction_amount) é o dado mais íntegro que existe.
     const amount = payment.transaction_amount || 0;
-    const isSimulation =
-      amount < 2.0 ||
-      payment.metadata?.is_simulation === true ||
-      payment.metadata?.is_simulation === "true";
+
+    // Diferenciação robusta entre validação (R$ 0,99) e venda real
+    const isSimulation = amount < 2.0;
 
     if (!externalReference || !supabaseAdmin) {
       return NextResponse.json(
@@ -44,18 +40,21 @@ export async function POST(request: Request) {
       );
     }
 
-    // 1. Lógica de Expiração (Só gera se for simulação aprovada)
     const expiresDate = new Date();
     expiresDate.setMinutes(expiresDate.getMinutes() + 20);
 
-    // 2. Persistência no Supabase
+    // Persistência com lógica de "Queima" de voucher
     const { data: saleData, error: dbError } = await supabaseAdmin
       .from("sales")
       .update({
         status: status,
         updated_at: new Date().toISOString(),
-        ...(isSimulation && status === "approved"
+        // Se for simulação: gera data de expiração.
+        // Se for venda real aprovada: marca o voucher como USADO.
+        ...(isSimulation
           ? { voucher_expires_at: expiresDate.toISOString() }
+          : status === "approved"
+          ? { voucher_used: true }
           : {}),
       })
       .eq("external_reference", externalReference)
@@ -66,10 +65,8 @@ export async function POST(request: Request) {
 
     const buyerEmail = saleData?.email || payment.payer?.email;
 
-    // 3. Disparo de E-mail Baseado no Contexto
     if (status === "approved" && buyerEmail) {
       if (isSimulation) {
-        // --- FLUXO VOUCHER ---
         const resgateLink = `${config.siteUrl}/resgate/${externalReference}`;
 
         await transporter.sendMail({
@@ -90,7 +87,6 @@ export async function POST(request: Request) {
           `,
         });
       } else {
-        // --- FLUXO PRODUTO REAL ---
         await transporter.sendMail({
           from: `"Suporte Developer" <${process.env.SMTP_USER}>`,
           to: buyerEmail,
@@ -98,7 +94,7 @@ export async function POST(request: Request) {
           html: `
             <div style="font-family: sans-serif; max-width: 600px; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
               <h2 style="color: #10b981;">Acesso Confirmado!</h2>
-              <p>Obrigado por adquirir o material completo. Clique abaixo para acessar:</p>
+              <p>Obrigado por adquirir o material completo. Seu voucher de desconto foi utilizado com sucesso.</p>
               <div style="margin: 20px 0;">
                 <a href="https://github.com/..." style="background: #333; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Repositório</a>
               </div>
