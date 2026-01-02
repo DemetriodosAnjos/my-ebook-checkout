@@ -8,10 +8,7 @@ const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: Number(process.env.SMTP_PORT),
   secure: Number(process.env.SMTP_PORT) === 465,
-  auth: {
-    user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
-  },
+  auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
 });
 
 export async function POST(request: Request) {
@@ -20,22 +17,23 @@ export async function POST(request: Request) {
     const { type, data } = body;
 
     if (type !== "payment" || !data?.id) {
-      return NextResponse.json(
-        { message: "Evento não processável" },
-        { status: 200 }
-      );
+      return NextResponse.json({ message: "Evento ignorado" }, { status: 200 });
     }
 
     const client = new MercadoPagoConfig({
       accessToken: config.mercadopago.accessToken,
     });
     const paymentClient = new Payment(client);
-
     const payment = await paymentClient.get({ id: data.id });
+
     const status = payment.status;
     const externalReference = payment.external_reference;
-    // Lendo o metadata que configuramos no checkoutBack
+
+    // TENSIONANDO A LOGICA: Não dependa apenas de metadata.
+    // O valor da transação (transaction_amount) é o dado mais íntegro que existe.
+    const amount = payment.transaction_amount || 0;
     const isSimulation =
+      amount < 2.0 ||
       payment.metadata?.is_simulation === true ||
       payment.metadata?.is_simulation === "true";
 
@@ -46,92 +44,73 @@ export async function POST(request: Request) {
       );
     }
 
-    // 1. Lógica de Expiração para o Voucher (20 minutos)
-    const voucherExpiresAt = new Date();
-    voucherExpiresAt.setMinutes(voucherExpiresAt.getMinutes() + 20);
+    // 1. Lógica de Expiração (Só gera se for simulação aprovada)
+    const expiresDate = new Date();
+    expiresDate.setMinutes(expiresDate.getMinutes() + 20);
 
-    // 2. ATUALIZAÇÃO NO SUPABASE
+    // 2. Persistência no Supabase
     const { data: saleData, error: dbError } = await supabaseAdmin
       .from("sales")
       .update({
         status: status,
         updated_at: new Date().toISOString(),
-        // Só salvamos a expiração se for um teste aprovado
         ...(isSimulation && status === "approved"
-          ? { voucher_expires_at: voucherExpiresAt.toISOString() }
+          ? { voucher_expires_at: expiresDate.toISOString() }
           : {}),
       })
       .eq("external_reference", externalReference)
-      .select("email, name, plan_type")
+      .select("email, name")
       .single();
 
     if (dbError) console.error("❌ [ERRO DB]:", dbError.message);
 
     const buyerEmail = saleData?.email || payment.payer?.email;
 
-    // 3. FLUXO DE DISPARO CONDICIONAL
+    // 3. Disparo de E-mail Baseado no Contexto
     if (status === "approved" && buyerEmail) {
       if (isSimulation) {
-        // --- ENVIO DO VOUCHER (O "GANCHO") ---
+        // --- FLUXO VOUCHER ---
         const resgateLink = `${config.siteUrl}/resgate/${externalReference}`;
 
         await transporter.sendMail({
           from: `"Suporte Developer" <${process.env.SMTP_USER}>`,
           to: buyerEmail,
-          subject: "⚡️ Webhook Validado! (Seu Voucher expirará em 20 min)",
+          subject: "⚡️ Webhook Validado! (Seu Voucher expira em 20 min)",
           html: `
-            <div style="font-family: sans-serif; max-width: 600px; border: 1px solid #10b981; padding: 20px; border-radius: 10px;">
-              <h2 style="color: #10b981;">Viu como é rápido? 🚀</h2>
-              <p>O pagamento de R$ 0,99 foi processado e este e-mail foi disparado <strong>instantaneamente</strong> pelo nosso Webhook.</p>
-              <p>Como prometido, seu voucher de <strong>R$ 99,00 OFF</strong> foi ativado, mas ele tem prazo de validade.</p>
-              <div style="margin: 30px 0; text-align: center; background: #f0fdf4; padding: 20px; border-radius: 8px;">
-                <p style="margin-bottom: 10px; font-weight: bold;">Seu tempo está correndo:</p>
-                <a href="${resgateLink}" style="background: #10b981; color: white; padding: 15px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">RESGATAR MEU DESCONTO AGORA</a>
+            <div style="font-family: sans-serif; max-width: 600px; border: 2px solid #10b981; padding: 20px; border-radius: 12px;">
+              <h2 style="color: #10b981;">Pagamento de R$ ${amount.toFixed(
+                2
+              )} validado!</h2>
+              <p>O sistema identificou sua validação. Agora você tem <strong>20 minutos</strong> para usar seu bônus de R$ 99,00 OFF.</p>
+              <div style="margin: 30px 0; text-align: center;">
+                <a href="${resgateLink}" style="background: #10b981; color: white; padding: 15px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; box-shadow: 0 4px 14px 0 rgba(16,185,129,0.39);">RESGATAR MEU DESCONTO</a>
               </div>
-              <p style="font-size: 12px; color: #666; text-align: center;">Após 20 minutos, este link expirará e o valor voltará ao preço original.</p>
+              <p style="font-size: 12px; color: #999; text-align: center;">Após este período, o link de resgate será invalidado automaticamente.</p>
             </div>
           `,
         });
       } else {
-        // --- ENVIO DO PRODUTO REAL ---
-        const driveLink =
-          "https://drive.google.com/file/d/1YTgGJKucsA6uZfu7OhcvdKewueS7z0Ce/view?usp=sharing";
-        const repoLink = "https://github.com/DemetriodosAnjos/boilerplate";
-
+        // --- FLUXO PRODUTO REAL ---
         await transporter.sendMail({
           from: `"Suporte Developer" <${process.env.SMTP_USER}>`,
           to: buyerEmail,
           subject: "Seu acesso ao material foi liberado 🎉",
           html: `
             <div style="font-family: sans-serif; max-width: 600px; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
-              <h2 style="color: #10b981;">Parabéns, ${
-                saleData?.name || "Dev"
-              }!</h2>
-              <p>Seu acesso ao <strong>Boilerplate</strong> já está disponível:</p>
+              <h2 style="color: #10b981;">Acesso Confirmado!</h2>
+              <p>Obrigado por adquirir o material completo. Clique abaixo para acessar:</p>
               <div style="margin: 20px 0;">
-                <a href="${repoLink}" style="background: #333; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; margin-right: 10px;">Acessar Github</a>
-                <a href="${driveLink}" style="background: #10b981; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Baixar Instruções</a>
+                <a href="https://github.com/..." style="background: #333; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Repositório</a>
               </div>
             </div>
           `,
         });
       }
-      console.log(
-        `✅ Fluxo ${
-          isSimulation ? "SIMULAÇÃO" : "REAL"
-        } finalizado para: ${buyerEmail}`
-      );
     }
 
     return NextResponse.json({ status: "processed" }, { status: 200 });
   } catch (error: unknown) {
-    console.error(
-      "🔥 [Webhook Error]:",
-      error instanceof Error ? error.message : error
-    );
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    console.error("🔥 [Webhook Error]:", error);
+    return NextResponse.json({ error: "Internal Error" }, { status: 500 });
   }
 }
