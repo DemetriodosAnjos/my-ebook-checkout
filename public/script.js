@@ -21,7 +21,6 @@ const PLAN_URLS = {
 };
 
 
-
 // =========================
 // Scroll suave para os planos
 // =========================
