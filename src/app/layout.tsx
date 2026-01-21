@@ -1,6 +1,3 @@
-// -----------------------------------------------
-// src/app/layout.tsx
-// -----------------------------------------------
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "@/app/global.css";
@@ -11,8 +8,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Boilerplate SaaS Premium",
-  description: "A estrutura completa para seu projeto Next.js 15",
+  title: "Checkout | Meu Ebook",
+  description: "Finalize sua compra com segurança.",
 };
 
 export default function RootLayout({

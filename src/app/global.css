@@ -4,8 +4,13 @@
   --font-inter: "Inter", sans-serif;
 }
 
+* {
+  @apply box-border;
+}
+
 html,
 body {
+  min-height: 100%;
   font-family: var(--font-inter), sans-serif;
   @apply bg-slate-950 text-slate-50;
 }
