@@ -13,13 +13,14 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtcnJ1d2l5eGdtZ3d0amJiYWx3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NjQwNTc3OCwiZXhwIjoyMDgxOTgxNzc4fQ.guRN0l1tD_9mfkqU0IJFMArIX8EguiXipKASAXdVZZ0
 NEXT_PUBLIC_SUPABASE_URL=https://amrruwiyxgmgwtjbbalw.supabase.co
 
+
+# Assinatura secreta MP (Webhook)=78dd4cbdd61d62318aacb5b6fe8ea23695ceb1cceab2f984c31c580e25029852
 # Google=gayu gwrd wwcs ihf
 
-# SMTP (EMAIL)
-# SMTP_HOST=smtp.gmail.com
-# SMTP_PORT=465
-# SMTP_USER=seu-email@gmail.com
-# SMTP_PASS=gayugwrdwwcsihf
+SMTP_HOST=smtp.gmail.com
+SMTP_PORT=465
+SMTP_USER=ddoanjos@gmail.com
+SMTP_PASS=gayugwrdwwcsihf
 
 # Basic - https://drive.google.com/drive/folders/1R5689GoyaeA47au8cShaD8x9NU-Fndmc?usp=sharing
 # Intermediate - https://drive.google.com/drive/folders/1K_6O3FZgi86CBOCWYsh1qVaJ-aWgUIEN?usp=sharing
