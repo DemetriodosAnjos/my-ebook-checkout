@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { MercadoPagoConfig, Payment } from "mercadopago";
-import { getSupabaseAdmin } from "@/lib/supabaseClient";
-import { config } from "@/lib/config";
+import { getSupabaseAdmin } from "../../../../lib/supabaseClient";
+import { config } from "../../../../lib/config";
 
 // Instâncias fora do POST para reutilização em ambiente serverless
 const mpClient = new MercadoPagoConfig({

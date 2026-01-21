@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { CheckCircle2, Clock, XCircle, Loader2 } from "lucide-react";
-import { supabasePublic } from "@/lib/supabaseClient";
+import { supabasePublic } from "../../lib/supabaseClient";
 import Link from "next/link";
 import "./success.css";
 

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { MercadoPagoConfig, Preference } from "mercadopago";
-import { getSupabaseAdmin } from "@/lib/supabaseClient";
-import { config } from "@/lib/config";
+import { getSupabaseAdmin } from "../../../../lib/supabaseClient";
+import { config } from "../../../../lib/config";
 
 const mpClient = new MercadoPagoConfig({
   accessToken: config.mercadopago.accessToken,

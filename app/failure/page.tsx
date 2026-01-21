@@ -3,7 +3,7 @@
 import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { XCircle, ArrowLeft, Loader2 } from "lucide-react";
-import { supabasePublic } from "@/lib/supabaseClient";
+import { supabasePublic } from "../../lib/supabaseClient";
 import Link from "next/link";
 import "./failure.css";
 
