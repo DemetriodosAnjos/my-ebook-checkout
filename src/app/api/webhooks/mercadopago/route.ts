@@ -16,9 +16,18 @@ const transporter = nodemailer.createTransport({
   auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
 });
 
+// ===============================
+// LINKS DOS PLANOS
+// ===============================
+const LINKS = {
+  basic: "https://drive.google.com/drive/folders/1R5689GoyaeA47au8cShaD8x9NU-Fndmc?usp=sharing",
+  intermediate: "https://drive.google.com/drive/folders/1K_6O3FZgi86CBOCWYsh1qVaJ-aWgUIEN?usp=sharing",
+  supreme: "https://drive.google.com/drive/folders/1irbeUXncNRT1wfO_LL8NWXsV11FQnf_T?usp=sharing",
+};
+
 export async function POST(request: Request) {
   try {
-    // 1. SECURITY GATE: Validação via Query Param
+    // 1. SECURITY GATE
     const { searchParams } = new URL(request.url);
     const secret = searchParams.get("secret");
 
@@ -30,7 +39,6 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { type, data } = body;
 
-    // Ignora eventos que não sejam de pagamento
     if (type !== "payment" || !data?.id) {
       return NextResponse.json({ message: "Evento ignorado" }, { status: 200 });
     }
@@ -42,13 +50,10 @@ export async function POST(request: Request) {
     const { status, external_reference, transaction_amount: amount } = payment;
 
     if (!external_reference || !supabaseAdmin) {
-      return NextResponse.json(
-        { message: "Dados insuficientes" },
-        { status: 200 }
-      );
+      return NextResponse.json({ message: "Dados insuficientes" }, { status: 200 });
     }
 
-    // 3. LÓGICA DE NEGÓCIO: Simulação vs Venda Real
+    // 3. SIMULAÇÃO
     const isSimulation = (amount || 0) < 2.0;
     const expiresDate = new Date();
     expiresDate.setMinutes(expiresDate.getMinutes() + 20);
@@ -57,7 +62,7 @@ export async function POST(request: Request) {
     const { data: saleData, error: dbError } = await supabaseAdmin
       .from("sales")
       .update({
-        status: status,
+        status,
         updated_at: new Date().toISOString(),
         ...(isSimulation
           ? { voucher_expires_at: expiresDate.toISOString() }
@@ -66,31 +71,32 @@ export async function POST(request: Request) {
           : {}),
       })
       .eq("external_reference", external_reference)
-      .select("email, name")
+      .select("email, name, plan")
       .single();
 
     if (dbError) {
       console.error("❌ [DB ERROR]:", dbError.message);
-      // Retornamos 200 mesmo com erro de DB para o MP parar de tentar enviar o mesmo webhook
-      return NextResponse.json(
-        { message: "Erro ao atualizar banco" },
-        { status: 200 }
-      );
+      return NextResponse.json({ message: "Erro ao atualizar banco" }, { status: 200 });
     }
 
     const buyerEmail = saleData?.email || payment.payer?.email;
+    const plan = saleData?.plan;
 
-    // 5. DISPARO DE E-MAILS (Somente se aprovado)
+    // 5. DISPARO DE E-MAILS
     if (status === "approved" && buyerEmail) {
-      const emailContent = isSimulation
-        ? getSimulationEmail(
-            `${config.siteUrl}/resgate/${external_reference}`,
-            amount || 0
-          )
-        : getSuccessEmail();
+      let emailContent;
+
+      if (isSimulation) {
+        emailContent = getSimulationEmail(
+          `${config.siteUrl}/resgate/${external_reference}`,
+          amount || 0
+        );
+      } else {
+        emailContent = getPlanEmail(plan);
+      }
 
       await transporter.sendMail({
-        from: `"Suporte Developer" <${process.env.SMTP_USER}>`,
+        from: `"Suporte" <${process.env.SMTP_USER}>`,
         to: buyerEmail,
         subject: isSimulation
           ? "⚡️ Webhook Validado! (Bônus de R$ 99,00)"
@@ -102,33 +108,73 @@ export async function POST(request: Request) {
     return NextResponse.json({ status: "processed" }, { status: 200 });
   } catch (error: any) {
     console.error("🔥 [Webhook Error]:", error?.message || error);
-    // Retornamos 500 para o MP tentar novamente em caso de erro de infra (ex: timeout)
     return NextResponse.json({ error: "Internal Error" }, { status: 500 });
   }
 }
 
-// Helpers para limpar o código principal
+// ===============================
+// EMAILS POR PLANO
+// ===============================
+function getPlanEmail(plan: string) {
+  let link = "#";
+  let title = "";
+  let description = "";
+
+  switch (plan) {
+    case "basic":
+      link = LINKS.basic;
+      title = "Seu Ebook está liberado!";
+      description = "Acesse agora o PDF completo com o método prático para gerar renda em até 7 dias.";
+      break;
+
+    case "intermediate":
+      link = LINKS.intermediate;
+      title = "Seu Pacote de Vendas está liberado!";
+      description = "Acesse o Ebook + Apostila de Negociação e Vendas (70 páginas).";
+      break;
+
+    case "supreme":
+      link = LINKS.supreme;
+      title = "Seu Pacote Supremo está liberado!";
+      description = "Acesse o Ebook + Apostila de Vendas + Apostila de Desenvolvimento Pessoal (200 páginas) + 80 videoaulas.";
+      break;
+
+    default:
+      title = "Seu acesso está liberado!";
+      description = "Clique no botão abaixo para acessar seu conteúdo.";
+      break;
+  }
+
+  return `
+    <div style="font-family: sans-serif; max-width: 600px; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+      <h2 style="color: #10b981;">${title}</h2>
+      <p>${description}</p>
+
+      <div style="margin: 30px 0; text-align: center;">
+        <a href="${link}" target="_blank"
+          style="background: #10b981; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">
+          ACESSAR MATERIAL
+        </a>
+      </div>
+
+      <p style="font-size: 12px; color: #777; text-align: center;">
+        Qualquer dúvida, responda este e-mail.
+      </p>
+    </div>
+  `;
+}
+
+// ===============================
+// EMAIL DE SIMULAÇÃO (mantido)
+// ===============================
 function getSimulationEmail(link: string, amount: number) {
   return `
     <div style="font-family: sans-serif; max-width: 600px; border: 2px solid #10b981; padding: 20px; border-radius: 12px;">
-      <h2 style="color: #10b981;">Pagamento de R$ ${amount.toFixed(
-        2
-      )} validado!</h2>
+      <h2 style="color: #10b981;">Pagamento de R$ ${amount.toFixed(2)} validado!</h2>
       <p>O sistema identificou sua validação. Agora você tem <strong>20 minutos</strong> para usar seu bônus de R$ 99,00 OFF.</p>
       <div style="margin: 30px 0; text-align: center;">
         <a href="${link}" style="background: #10b981; color: white; padding: 15px 25px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">RESGATAR MEU DESCONTO</a>
       </div>
       <p style="font-size: 12px; color: #999; text-align: center;">Voucher de uso único e temporário.</p>
-    </div>`;
-}
-
-function getSuccessEmail() {
-  return `
-    <div style="font-family: sans-serif; max-width: 600px; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
-      <h2 style="color: #10b981;">Acesso Confirmado!</h2>
-      <p>Seu voucher de desconto foi utilizado com sucesso e seu acesso está liberado.</p>
-      <div style="margin: 20px 0;">
-        <a href="https://github.com/..." style="background: #333; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">Ver Repositório</a>
-      </div>
     </div>`;
 }

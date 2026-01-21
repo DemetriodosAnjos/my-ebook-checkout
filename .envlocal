@@ -1,0 +1,26 @@
+# Utilize esse modelo para preencher as chaves, sem elas sua aplicação não vai funcionar.
+
+# APP
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+WEBHOOK_SECRET=4f82b9e1a7c3d5f08e2c5b1a9f0d743bb2d9e4a8f1c73a56
+
+# MERCADO PAGO
+MP_ACCESS_TOKEN=APP_USR-4664777163647753-012110-3e88c328ce27b49a9a44024bf8aebf47-3081058128
+MP_PUBLIC_KEY=APP_USR-a07d8af9-19ba-4f4d-a0e7-4ebc241803e3
+
+# SUPABASE
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtcnJ1d2l5eGdtZ3d0amJiYWx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjY0MDU3NzgsImV4cCI6MjA4MTk4MTc3OH0.M1aHTaxc8ETWcyqyv0g9oh-y9ZjvEhmWKO5CZlVqY2Y
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtcnJ1d2l5eGdtZ3d0amJiYWx3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NjQwNTc3OCwiZXhwIjoyMDgxOTgxNzc4fQ.guRN0l1tD_9mfkqU0IJFMArIX8EguiXipKASAXdVZZ0
+NEXT_PUBLIC_SUPABASE_URL=https://amrruwiyxgmgwtjbbalw.supabase.co
+
+
+
+# SMTP (EMAIL)
+# SMTP_HOST=smtp.gmail.com
+# SMTP_PORT=465
+# SMTP_USER=seu-email@gmail.com
+# SMTP_PASS=sua-senha-de-app
+
+# Basic - https://drive.google.com/drive/folders/1R5689GoyaeA47au8cShaD8x9NU-Fndmc?usp=sharing
+# Intermediate - https://drive.google.com/drive/folders/1K_6O3FZgi86CBOCWYsh1qVaJ-aWgUIEN?usp=sharing
+# Supreme - https://drive.google.com/drive/folders/1irbeUXncNRT1wfO_LL8NWXsV11FQnf_T?usp=sharing
