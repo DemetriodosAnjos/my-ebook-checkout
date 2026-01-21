@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { MercadoPagoConfig, Preference } from "mercadopago";
-import { supabaseAdmin } from "@/lib/supabaseClient";
+import { getSupabaseAdmin } from "@/lib/supabaseClient";
 import { config } from "@/lib/config";
 
 const mpClient = new MercadoPagoConfig({
@@ -16,10 +16,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Email obrigatório" }, { status: 400 });
     }
 
+    // Garantir que o Supabase Admin existe
+    const admin = getSupabaseAdmin();
+
     // 1. Criar registro no banco
     const external_reference = `ebook_basic_${Date.now()}`;
 
-    await supabaseAdmin.from("sales").insert({
+    await admin.from("sales").insert({
       email,
       name,
       plan: "basic",
@@ -34,6 +37,7 @@ export async function POST(request: Request) {
       body: {
         items: [
           {
+            id: "ebook_basic",
             title: "Ebook Completo",
             quantity: 1,
             unit_price: 19.9,

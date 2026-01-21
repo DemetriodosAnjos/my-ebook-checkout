@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { MercadoPagoConfig, Preference } from "mercadopago";
-import { supabaseAdmin } from "@/lib/supabaseClient";
+import { getSupabaseAdmin } from "@/lib/supabaseClient";
 import { config } from "@/lib/config";
 
 const mpClient = new MercadoPagoConfig({
@@ -16,9 +16,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Email obrigatório" }, { status: 400 });
     }
 
-    const external_reference = `ebook_sales_${Date.now()}`;
+    // Garantir Supabase Admin inicializado
+    const admin = getSupabaseAdmin();
 
-    await supabaseAdmin.from("sales").insert({
+    // Criar referência única
+    const external_reference = `ebook_intermediate_${Date.now()}`;
+
+    // Registrar venda no Supabase
+    await admin.from("sales").insert({
       email,
       name,
       plan: "intermediate",
@@ -26,12 +31,14 @@ export async function POST(request: Request) {
       status: "pending",
     });
 
+    // Criar preferência no Mercado Pago
     const preferenceClient = new Preference(mpClient);
 
     const preference = await preferenceClient.create({
       body: {
         items: [
           {
+            id: "ebook_intermediate",
             title: "Ebook + Apostila de Vendas",
             quantity: 1,
             unit_price: 49.9,

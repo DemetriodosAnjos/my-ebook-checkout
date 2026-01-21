@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { MercadoPagoConfig, Preference } from "mercadopago";
-import { supabaseAdmin } from "@/lib/supabaseClient";
+import { getSupabaseAdmin } from "@/lib/supabaseClient";
 import { config } from "@/lib/config";
 
 const mpClient = new MercadoPagoConfig({
@@ -16,9 +16,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Email obrigatório" }, { status: 400 });
     }
 
+    // Garantir Supabase Admin inicializado
+    const admin = getSupabaseAdmin();
+
+    // Criar referência única
     const external_reference = `ebook_supreme_${Date.now()}`;
 
-    await supabaseAdmin.from("sales").insert({
+    // Registrar venda no Supabase
+    await admin.from("sales").insert({
       email,
       name,
       plan: "supreme",
@@ -26,12 +31,14 @@ export async function POST(request: Request) {
       status: "pending",
     });
 
+    // Criar preferência no Mercado Pago
     const preferenceClient = new Preference(mpClient);
 
     const preference = await preferenceClient.create({
       body: {
         items: [
           {
+            id: "ebook_supreme",
             title: "Pacote Supremo (Ebook + Vendas + 200pg + 80 aulas)",
             quantity: 1,
             unit_price: 99.9,

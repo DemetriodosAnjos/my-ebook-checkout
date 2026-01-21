@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { MercadoPagoConfig, Payment } from "mercadopago";
-import { supabaseAdmin } from "@/lib/supabaseClient";
+import { getSupabaseAdmin } from "@/lib/supabaseClient";
 import { config } from "@/lib/config";
 
 // Instâncias fora do POST para reutilização em ambiente serverless
@@ -49,9 +49,12 @@ export async function POST(request: Request) {
 
     const { status, external_reference, transaction_amount: amount } = payment;
 
-    if (!external_reference || !supabaseAdmin) {
+    if (!external_reference) {
       return NextResponse.json({ message: "Dados insuficientes" }, { status: 200 });
     }
+    
+    const admin = getSupabaseAdmin();
+    
 
     // 3. SIMULAÇÃO
     const isSimulation = (amount || 0) < 2.0;
@@ -59,7 +62,7 @@ export async function POST(request: Request) {
     expiresDate.setMinutes(expiresDate.getMinutes() + 20);
 
     // 4. ATUALIZAÇÃO NO BANCO
-    const { data: saleData, error: dbError } = await supabaseAdmin
+    const { data: saleData, error: dbError } = await admin
       .from("sales")
       .update({
         status,
